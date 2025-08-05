@@ -15,7 +15,7 @@
   
   body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    background: #6b7280;
     min-height: 100vh;
     overflow: hidden;
     color: #fff;
@@ -484,9 +484,9 @@
       parsed.forEach(row => {
         const words = row["virtues_catalogued"]?.split(";").map(w => w.trim()).filter(Boolean);
         const title = row["title"]?.trim();
-        const comparative_male = row["comparative_male"]?.trim();
         const creator = row["creator"]?.trim();
         const date = row["date"]?.trim();
+        const comparativeMale = row["comparative_male"]?.split(";").map(w => w.trim()).filter(Boolean);
 
         if (!words || !title) return;
 
@@ -502,32 +502,35 @@
           });
         }
 
-        // Categorize words into "women" and "men" based on keywords
-        const womenKeywords = ['woman', 'women', 'female', 'lady', 'ladies', 'mother', 'daughter', 'wife', 'sister', 'girl', 'girls', 'feminine', 'she', 'her'];
-        const menKeywords = ['man', 'men', 'male', 'gentleman', 'gentlemen', 'father', 'son', 'husband', 'brother', 'boy', 'boys', 'masculine', 'he', 'him', 'his'];
-
+        // Process virtues_catalogued as women nodes
         words.forEach(word => {
-          const lowerWord = word.toLowerCase();
-          let wordGroup = "women"; // default to women
-          
-          // Check if word relates to men
-          if (menKeywords.some(keyword => lowerWord.includes(keyword))) {
-            wordGroup = "men";
-            menFreq.set(word, (menFreq.get(word) || 0) + 1);
-          } else {
-            womenFreq.set(word, (womenFreq.get(word) || 0) + 1);
-          }
-
+          womenFreq.set(word, (womenFreq.get(word) || 0) + 1);
           if (!nodesMap.has(word)) {
             nodesMap.set(word, { 
               id: word, 
-              group: wordGroup,
-              type: wordGroup,
+              group: "women",
+              type: "women",
               connections: 0
             });
           }
           linksArray.push({ source: word, target: title });
         });
+
+        // Process comparative_male as men nodes
+        if (comparativeMale && comparativeMale.length > 0) {
+          comparativeMale.forEach(word => {
+            menFreq.set(word, (menFreq.get(word) || 0) + 1);
+            if (!nodesMap.has(word)) {
+              nodesMap.set(word, { 
+                id: word, 
+                group: "men",
+                type: "men",
+                connections: 0
+              });
+            }
+            linksArray.push({ source: word, target: title });
+          });
+        }
       });
 
       // Calculate actual connections for each node
