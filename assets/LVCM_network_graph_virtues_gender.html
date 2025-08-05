@@ -484,6 +484,7 @@
       parsed.forEach(row => {
         const words = row["virtues_catalogued"]?.split(";").map(w => w.trim()).filter(Boolean);
         const title = row["title"]?.trim();
+        const comparative_male = row["comparative_male"]?.trim();
         const creator = row["creator"]?.trim();
         const date = row["date"]?.trim();
 
