@@ -450,6 +450,7 @@
 
       parsed.forEach(row => {
         const words = row["words_catalogued"]?.split(";").map(w => w.trim()).filter(Boolean);
+        const comparative male = row["comparative_male"]?.split(";").map(w => w.trim()).filter(Boolean);
         const title = row["title"]?.trim();
         const creator = row["creator"]?.trim();
         const date = row["date"]?.trim();
