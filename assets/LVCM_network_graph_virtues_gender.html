@@ -145,30 +145,43 @@
     cursor: pointer;
   }
   
-  .word-node {
-    fill: url(#wordGradient);
+  .women-node {
+    fill: url(#womenGradient);
     stroke: rgba(255, 255, 255, 0.3);
     stroke-width: 2px;
     filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.3));
     transition: all 0.2s ease;
   }
   
-  .word-node:hover {
+  .women-node:hover {
     filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.4));
     stroke: rgba(255, 255, 255, 0.6);
   }
   
-  .title-node {
-    fill: url(#titleGradient);
+  .virtues-node {
+    fill: url(#virtuesGradient);
     stroke: rgba(255, 255, 255, 0.4);
     stroke-width: 3px;
     filter: drop-shadow(0 6px 20px rgba(0, 0, 0, 0.4));
     transition: all 0.2s ease;
   }
   
-  .title-node:hover {
+  .virtues-node:hover {
     filter: drop-shadow(0 8px 24px rgba(0, 0, 0, 0.5));
     stroke: rgba(255, 255, 255, 0.8);
+  }
+  
+  .men-node {
+    fill: url(#menGradient);
+    stroke: rgba(255, 255, 255, 0.35);
+    stroke-width: 2.5px;
+    filter: drop-shadow(0 5px 16px rgba(0, 0, 0, 0.35));
+    transition: all 0.2s ease;
+  }
+  
+  .men-node:hover {
+    filter: drop-shadow(0 7px 20px rgba(0, 0, 0, 0.45));
+    stroke: rgba(255, 255, 255, 0.7);
   }
   
   .node-text {
@@ -178,16 +191,23 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
   
-  .word-text {
+  .women-text {
     fill: #fff;
     font-size: 11px;
   }
   
-  .title-text {
+  .virtues-text {
     fill: #ffffff;
     font-size: 13px;
     font-weight: 700;
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.6);
+  }
+  
+  .men-text {
+    fill: #ffffff;
+    font-size: 12px;
+    font-weight: 600;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
   }
   
   .tooltip {
@@ -238,7 +258,7 @@
     display: flex;
     align-items: center;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
     font-size: 13px;
     font-weight: 500;
   }
@@ -254,12 +274,16 @@
     border: 2px solid rgba(255, 255, 255, 0.3);
   }
   
-  .word-legend {
-    background: linear-gradient(45deg, #4f46e5, #7c3aed);
+  .women-legend {
+    background: linear-gradient(45deg, #22c55e, #16a34a);
   }
   
-  .title-legend {
-    background: linear-gradient(45deg, #f59e0b, #ef4444);
+  .virtues-legend {
+    background: linear-gradient(45deg, #f97316, #ea580c);
+  }
+  
+  .men-legend {
+    background: linear-gradient(45deg, #8b5cf6, #7c3aed);
   }
   
   .loading {
@@ -345,13 +369,17 @@
     
     <svg id="network-svg">
       <defs>
-        <linearGradient id="wordGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#4f46e5"/>
-          <stop offset="100%" style="stop-color:#7c3aed"/>
+        <linearGradient id="womenGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#22c55e"/>
+          <stop offset="100%" style="stop-color:#16a34a"/>
         </linearGradient>
-        <linearGradient id="titleGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" style="stop-color:#f59e0b"/>
-          <stop offset="100%" style="stop-color:#ef4444"/>
+        <linearGradient id="virtuesGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#f97316"/>
+          <stop offset="100%" style="stop-color:#ea580c"/>
+        </linearGradient>
+        <linearGradient id="menGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style="stop-color:#8b5cf6"/>
+          <stop offset="100%" style="stop-color:#7c3aed"/>
         </linearGradient>
         <linearGradient id="linkGradient" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" style="stop-color:#4f46e5"/>
@@ -362,15 +390,15 @@
     
     <div class="legend">
       <div class="legend-item">
-        <div class="legend-circle word-legend"></div>
-        <span>Virtues</span>
-      </div>
-      <div class="legend-item">
-        <div class="legend-circle title-legend"></div>
+        <div class="legend-circle women-legend"></div>
         <span>Women</span>
       </div>
       <div class="legend-item">
-        <div class="legend-circle title-legend"></div>
+        <div class="legend-circle virtues-legend"></div>
+        <span>Virtues</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-circle men-legend"></div>
         <span>Men</span>
       </div>
     </div>
@@ -450,35 +478,50 @@
       const parsed = d3.csvParse(data);
       const nodesMap = new Map();
       const linksArray = [];
-      const wordFreq = new Map();
+      const womenFreq = new Map();
+      const menFreq = new Map();
 
       parsed.forEach(row => {
-        const words = row["words_catalogued"]?.split(";").map(w => w.trim()).filter(Boolean);
-        const comparative male = row["comparative_male"]?.split(";").map(w => w.trim()).filter(Boolean);
+        const words = row["virtues_catalogued"]?.split(";").map(w => w.trim()).filter(Boolean);
         const title = row["title"]?.trim();
         const creator = row["creator"]?.trim();
         const date = row["date"]?.trim();
 
         if (!words || !title) return;
 
+        // Add virtues node (using title as virtues)
         if (!nodesMap.has(title)) {
           nodesMap.set(title, { 
             id: title, 
-            group: "title", 
+            group: "virtues", 
             creator: creator,
             date: date,
-            type: "title",
+            type: "virtues",
             connections: 0
           });
         }
 
+        // Categorize words into "women" and "men" based on keywords
+        const womenKeywords = ['woman', 'women', 'female', 'lady', 'ladies', 'mother', 'daughter', 'wife', 'sister', 'girl', 'girls', 'feminine', 'she', 'her'];
+        const menKeywords = ['man', 'men', 'male', 'gentleman', 'gentlemen', 'father', 'son', 'husband', 'brother', 'boy', 'boys', 'masculine', 'he', 'him', 'his'];
+
         words.forEach(word => {
-          wordFreq.set(word, (wordFreq.get(word) || 0) + 1);
+          const lowerWord = word.toLowerCase();
+          let wordGroup = "women"; // default to women
+          
+          // Check if word relates to men
+          if (menKeywords.some(keyword => lowerWord.includes(keyword))) {
+            wordGroup = "men";
+            menFreq.set(word, (menFreq.get(word) || 0) + 1);
+          } else {
+            womenFreq.set(word, (womenFreq.get(word) || 0) + 1);
+          }
+
           if (!nodesMap.has(word)) {
             nodesMap.set(word, { 
               id: word, 
-              group: "word",
-              type: "word",
+              group: wordGroup,
+              type: wordGroup,
               connections: 0
             });
           }
@@ -496,8 +539,10 @@
       // Set frequency and connections for scaling
       nodesMap.forEach(node => {
         node.connections = connectionCount.get(node.id) || 0;
-        if (node.group === "word") {
-          node.frequency = wordFreq.get(node.id) || 1;
+        if (node.group === "women") {
+          node.frequency = womenFreq.get(node.id) || 1;
+        } else if (node.group === "men") {
+          node.frequency = menFreq.get(node.id) || 1;
         } else {
           node.frequency = 2;
         }
@@ -516,17 +561,26 @@
   function initializeVisualization() {
     const minRadius = 6;
     const maxRadius = 24;
-    const titleRadius = 32;
+    const virtuesRadius = 32;
+    const menRadius = 28;
 
-    const freqExtent = d3.extent(nodes.filter(d => d.group === "word"), d => d.frequency);
-    const sizeScale = d3.scaleSqrt().domain(freqExtent || [1, 1]).range([minRadius, maxRadius]);
+    const womenExtent = d3.extent(nodes.filter(d => d.group === "women"), d => d.frequency);
+    const menExtent = d3.extent(nodes.filter(d => d.group === "men"), d => d.frequency);
+    const womenSizeScale = d3.scaleSqrt().domain(womenExtent || [1, 1]).range([minRadius, maxRadius]);
+    const menSizeScale = d3.scaleSqrt().domain(menExtent || [1, 1]).range([18, menRadius]);
 
     simulation = d3.forceSimulation(nodes)
       .force("link", d3.forceLink(links).id(d => d.id).distance(120).strength(0.8))
-      .force("charge", d3.forceManyBody().strength(-300))
+      .force("charge", d3.forceManyBody().strength(d => {
+        if (d.group === "virtues") return -400;
+        if (d.group === "men") return -350;
+        return -300;
+      }))
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collision", d3.forceCollide(d => {
-        return d.group === "title" ? titleRadius + 8 : sizeScale(d.frequency) + 6;
+        if (d.group === "virtues") return virtuesRadius + 8;
+        if (d.group === "men") return menSizeScale(d.frequency) + 6;
+        return womenSizeScale(d.frequency) + 6;
       }));
 
     // Links
@@ -552,8 +606,16 @@
 
     // Node circles
     nodeElements.append("circle")
-      .attr("r", d => d.group === "title" ? titleRadius : sizeScale(d.frequency))
-      .attr("class", d => d.group === "title" ? "title-node" : "word-node")
+      .attr("r", d => {
+        if (d.group === "virtues") return virtuesRadius;
+        if (d.group === "men") return menSizeScale(d.frequency);
+        return womenSizeScale(d.frequency);
+      })
+      .attr("class", d => {
+        if (d.group === "virtues") return "virtues-node";
+        if (d.group === "men") return "men-node";
+        return "women-node";
+      })
       .on("mouseover", showTooltip)
       .on("mousemove", moveTooltip)
       .on("mouseout", hideTooltip)
@@ -564,8 +626,16 @@
       .text(d => d.id)
       .attr("text-anchor", "middle")
       .attr("dy", "0.35em")
-      .attr("class", d => d.group === "title" ? "node-text title-text" : "node-text word-text")
-      .call(wrapText, d => d.group === "title" ? titleRadius * 1.6 : sizeScale(d.frequency) * 1.6);
+      .attr("class", d => {
+        if (d.group === "virtues") return "node-text virtues-text";
+        if (d.group === "men") return "node-text men-text";
+        return "node-text women-text";
+      })
+      .call(wrapText, d => {
+        if (d.group === "virtues") return virtuesRadius * 1.6;
+        if (d.group === "men") return menSizeScale(d.frequency) * 1.6;
+        return womenSizeScale(d.frequency) * 1.6;
+      });
 
     // Control handlers
     linkStrengthSlider.on("input", function() {
@@ -609,15 +679,19 @@
     }
 
     function showTooltip(event, d) {
+      let typeLabel = 'Women';
+      if (d.group === 'virtues') typeLabel = 'Virtues';
+      if (d.group === 'men') typeLabel = 'Men';
+      
+      const connectionInfo = d.connections > 0 ? `<div class="tooltip-info">Connections: ${d.connections}</div>` : '';
+      const frequencyInfo = (d.group === "women" || d.group === "men") && d.frequency > 1 ? `<div class="tooltip-info">Appears ${d.frequency} times</div>` : '';
       const creatorInfo = d.creator ? `<div class="tooltip-info">Creator: ${d.creator}</div>` : '';
       const dateInfo = d.date ? `<div class="tooltip-info">Date: ${d.date}</div>` : '';
-      const connectionInfo = d.connections > 0 ? `<div class="tooltip-info">Connections: ${d.connections}</div>` : '';
-      const frequencyInfo = d.group === "word" && d.frequency > 1 ? `<div class="tooltip-info">Appears in ${d.frequency} books</div>` : '';
       
       tooltip
         .html(`
           <div class="tooltip-title">${d.id}</div>
-          <div class="tooltip-info">Type: ${d.group === 'title' ? 'Book Title' : 'Word'}</div>
+          <div class="tooltip-info">Type: ${typeLabel}</div>
           ${connectionInfo}
           ${frequencyInfo}
           ${creatorInfo}
